@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import time
 import datetime
 import facebook
@@ -6,13 +8,13 @@ import private
 
 cities_of_interest = ['Paris', 'Brussels'] # where the event should be TODO2: get cities from user
 events_of_interest = [] # all the available events in cities_of_interest, list of [artist_name, event_date, event_place]
-all_musics_name_id = [] # list of [artist_name, artist_id] 
+all_musics_name_id = [] # list of [artist_name, artist_id]
 # today_date = datetime.datetime.now().strftime("%Y-%m-%d")
 current_timestamp = time.time()
 graph = facebook.GraphAPI(access_token=private.token) # get your token at https://developers.facebook.com/tools/explorer/
 musics = graph.get_connections("me", "music") # my likes about music
 
-print "Retrieving all your Music Likes..."
+print("Retrieving all your Music Likes...")
 while(True):
 	try:
 		for music in musics['data']:
@@ -23,14 +25,14 @@ while(True):
 		# When there are no more pages (['paging']['next']), break from the
 		# loop and end the script.
 		break
-print "Done."
+print("Done.")
 
-print "Looking for interesting events..."
+print("Looking for interesting events...")
 for n in range(len(all_musics_name_id)): # loop over all the artists
 # for n in range(30): # loop over all the artists
 	artist_name = all_musics_name_id[n][0]
 	artist_id = all_musics_name_id[n][1]
-	# print '-'*10 + 'Artist: ' + artist_name + '-'*10
+	# print('-'*10 + 'Artist: ' + artist_name + '-'*10)
 	artist_events = graph.get_object(artist_id, fields='events') # get all the events for one artist
 	if 'events' in artist_events.keys(): # some artists do not have "events" section
 
@@ -40,33 +42,33 @@ for n in range(len(all_musics_name_id)): # loop over all the artists
 			event_place = 'Not Available'
 			event_start_timestamp = 0 # when the event is not available, it'll be considered as past
 			try:
-				event_city = artist_events['events']['data'][event_number]['place']['location']['city']					
-				# print "City: " + event_city
-			except: 
+				event_city = artist_events['events']['data'][event_number]['place']['location']['city']
+				# print("City: " + event_city)
+			except:
 				pass
 			try:
-				event_place = artist_events['events']['data'][event_number]['place']['name']					
-			except: 
+				event_place = artist_events['events']['data'][event_number]['place']['name']
+			except:
 				pass
-				# print "No city available for this event"
+				# print("No city available for this event")
 			try:
 				event_date = artist_events['events']['data'][event_number]['start_time'][:10] # TODO1: take care of the time
 				event_start_timestamp = time.mktime(datetime.datetime.strptime(event_date, "%Y-%m-%d").timetuple())
-				# print "Date: " + event_date
-			except: 
+				# print("Date: " + event_date)
+			except:
 				pass
-				# print "No city start time for this event"
+				# print("No city start time for this event")
 			if event_city in cities_of_interest and current_timestamp < (event_start_timestamp+86400): # why +86400? maybe you want to know if you just missed an event, but also because of TODO1
 				events_of_interest.append([artist_name, event_date, event_place])
 
 	else:
 		pass
-		# print "No public events on Facebook for this artist"
-print "Done."
+		# print("No public events on Facebook for this artist")
+print("Done.")
 
-print "Your interesting events:"
+print("Your interesting events:")
 for event in events_of_interest:
-	print "-"*20
-	print "Artist: " + event[0]
-	print "Date: " + event[1][:10]
-	print "Place: " + event[2]
+	print("-"*20)
+	print("Artist: " + event[0])
+	print("Date: " + event[1][:10])
+	print("Place: " + event[2])
